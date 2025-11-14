@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Crossfade Demo (Button-based)</title>
+    
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        
+        #waveform-1\.00 {
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            background: #f8f8f8; 
+            margin-bottom: 20px;
+        }
+        
+        button { margin: 5px; padding: 10px 15px; font-size: 16px; cursor: pointer; }
+        
+        .speed-controls { margin-top: 20px; }
+        .speed-controls button { width: 90px; }
+        .speed-controls button.active { background-color: #007bff; color: white; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <h2>クロスフェード・デモ (ボタン切り替え)</h2>
+    <p>
+        各ボタンを押すと、対応する速度の音源に滑らかに切り替わります。<br>
+        <strong style="color: red;">※6つのwavファイルが必須です</strong>
+    </p>
+
+    <div id="waveform-1.20"></div>
+
+    <div id="waveform-1.10" style="display: none;"></div>
+    <div id="waveform-1.15" style="display: none;"></div>
+    <div id="waveform-1.25" style="display: none;"></div>
+    <div id="waveform-1.30" style="display: none;"></div>
+    <div id="waveform-1.35" style="display: none;"></div>
+    <hr>
+
+    <button id="playPauseBtn" disabled>Loading...</button>
+    <button id="sensorStartBtn" style="display: block; margin: 10px 0;">
+    センサーを有効化
+    </button>
+    
+    <div class="speed-controls">
+        <h3>再生速度:</h3>
+        <button class="speedSelectBtn" data-speed="0.90" disabled>1.10x</button>
+        <button class="speedSelectBtn" data-speed="0.95" disabled>1.15x</button>
+        <button class="speedSelectBtn active" data-speed="1.00" disabled>1.20x</button>
+        <button class="speedSelectBtn" data-speed="1.05" disabled>1.25x</button>
+        <button class="speedSelectBtn" data-speed="1.10" disabled>1.30x</button>
+        <button class="speedSelectBtn" data-speed="1.15" disabled>1.35x</button>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

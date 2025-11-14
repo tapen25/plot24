@@ -1,0 +1,57 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+#controls button {
+    font-size: 16px;
+    padding: 10px 16px;
+    margin: 4px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+#controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+#controls button:not(:disabled):hover {
+    background-color: #f0f0f0;
+}
+
+/* 現在選択されている速度ボタンのスタイル */
+.speedBtn.current {
+    border-color: #007bff;
+    background-color: #e6f2ff;
+    font-weight: bold;
+}
+
+#status {
+    margin-top: 20px;
+    background: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#status p {
+    margin: 8px 0;
+    font-family: monospace; /* 等幅フォントで見やすく */
+}
+
+/* どちらがアクティブか視覚的に示す */
+#status .active {
+    font-weight: bold;
+    color: #0056b3;
+}
