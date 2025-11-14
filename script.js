@@ -32,16 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const ws = WaveSurfer.create({
             container: containerId,
-            waveColor: (speed === '1.00') ? 'violet' : 'grey', 
-            progressColor: (speed === '1.00') ? 'purple' : 'grey',
-            height: (speed === '1.00') ? 100 : 1, 
-            interact: (speed === '1.00'), 
+            waveColor: (speed === '1.10') ? 'violet' : 'grey', 
+            progressColor: (speed === '1.10') ? 'purple' : 'grey',
+            height: (speed === '1.10') ? 100 : 1, 
+            interact: (speed === '1.10'),
         });
 
         const fileName = `kanon_${speed}x.wav`; 
         try { ws.load(fileName); } catch(e) { /* ...エラー処理... */ }
 
-        currentVolumes[speed] = (speed === '1.00') ? 1.0 : 0.0;
+        currentVolumes[speed] = (speed === '1.10') ? 1.0 : 0.0;
         ws.setVolume(currentVolumes[speed]);
         wsPlayers[speed] = ws;
 
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (filesLoaded === totalFiles) {
                 console.log('All files loaded and ready.');
-                masterPlayer = wsPlayers['1.00'];
+               masterPlayer = wsPlayers['1.10'];
                 
                 setupSync(); 
                 
