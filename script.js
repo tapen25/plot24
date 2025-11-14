@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentVolumes = {};
 
     let masterPlayer = null;
-    let currentActiveSpeed = '1.00';
+    
+    // --- ▼ 修正点 1 (基準速度を 1.10 に) ---
+    let currentActiveSpeed = '1.10';
+    // --- ▲ 修正点 1 ---
+    
     let filesLoaded = 0;
     const totalFiles = speeds.length;
     let isCrossfading = false;
@@ -51,21 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (filesLoaded === totalFiles) {
                 console.log('All files loaded and ready.');
-               masterPlayer = wsPlayers['1.10'];
+                masterPlayer = wsPlayers['1.10'];
                 
-                setupSync(); 
-                
-                playPauseBtn.disabled = false;
-                playPauseBtn.textContent = 'Play';
-                speedSelectButtons.forEach(btn => btn.disabled = false);
-                
-                // 【追加】全ファイルロード後にセンサーの準備を開始
-                setupMotionDetection();
+                // masterPlayer が undefined でないことを確認
+                if (masterPlayer) {
+                    setupSync(); 
+                    setupMotionDetection(); // setupSync の後でも先でもOK
+                    
+                    playPauseBtn.disabled = false;
+                    playPauseBtn.textContent = 'Play';
+                    speedSelectButtons.forEach(btn => btn.disabled = false);
+                } else {
+                    console.error("Master player (1.10) failed to initialize. Check HTML ID and file path.");
+                }
             }
         });
 
         ws.on('finish', () => {
-            if (speed === '1.00') {
+            // --- ▼ 修正点 2 (マスタープレイヤーの速度 1.10 に) ---
+            if (speed === '1.10') {
+            // --- ▲ 修正点 2 ---
                 Object.values(wsPlayers).forEach(p => p.stop());
                 playPauseBtn.textContent = 'Play';
             }
@@ -74,19 +83,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === 4. 同期設定 (Progressベース) ===
     function setupSync() {
+        // ... (変更なし) ...
         playPauseBtn.onclick = () => {
             masterPlayer.playPause();
         };
 
-        // ★ Playボタンが押された時 (マスターが再生開始したら)
         masterPlayer.on('play', () => {
             playPauseBtn.textContent = 'Pause';
-            
-            // --- 【修正点 1】 ---
             const currentTime = masterPlayer.getCurrentTime();
             const duration = masterPlayer.getDuration();
             const progress = (duration > 0) ? (currentTime / duration) : 0;
-            // ---------------------
             
             Object.values(wsPlayers).forEach(ws => {
                 if (ws !== masterPlayer) {
@@ -96,13 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // ★ Pauseボタンが押された時 (マスターが一時停止したら)
         masterPlayer.on('pause', () => {
             playPauseBtn.textContent = 'Play';
             Object.values(wsPlayers).forEach(ws => ws.pause());
         });
 
-        // ★ マスターの波形がシークされた時
         masterPlayer.on('seek', (progress) => {
             Object.values(wsPlayers).forEach(ws => {
                 ws.seekTo(progress);
@@ -111,29 +115,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === 5. 手動クロスフェード処理 (再生位置同期の追加) ===
+    // ... (変更なし) ...
     const SMOOTHING_FACTOR_VOLUME = 0.04;
-
     function manualCrossfade(targetSpeedKey) {
+        if (!wsPlayers[targetSpeedKey]) {
+            console.warn(`Target speed ${targetSpeedKey} not found in wsPlayers.`);
+            return;
+        }
         if (isCrossfading || targetSpeedKey === currentActiveSpeed) return;
         isCrossfading = true;
 
         console.log(`Starting crossfade from ${currentActiveSpeed} to ${targetSpeedKey}`);
 
-        // 1. マスターの再生状態と再生位置（割合）を取得
         const isPlaying = masterPlayer.isPlaying();
-
-        // --- 【修正点 2】 ---
         const currentTime = masterPlayer.getCurrentTime();
         const duration = masterPlayer.getDuration();
         const currentProgress = (duration > 0) ? (currentTime / duration) : 0;
-        // ---------------------
-
+        
         const targetPlayer = wsPlayers[targetSpeedKey];
-
-        // 2. ターゲットの再生位置をマスターの割合に強制的に同期させる
         targetPlayer.seekTo(currentProgress);
 
-        // 3. もしマスターが再生中だったら、ターゲットも（同期した位置から）再生開始させる
         if (isPlaying) {
             targetPlayer.play();
         }
@@ -170,7 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(animateCrossfade);
     }
    
-    // === 6. 速度切り替えボタンのイベントリスナー (変更なし) ===
+    // === 6. 速度切り替えボタンのイベントリスナー ===
+    // (HTML側の data-speed が修正されたため、このセクションは変更不要)
     speedSelectButtons.forEach(button => {
         button.addEventListener('click', () => {
             const targetSpeed = button.dataset.speed;
@@ -183,10 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // === 7. 【追加】加速度センサー処理 ===
-
-    /**
-     * 加速度センサーへのアクセス許可とイベントリスナの追加
-     */
+    // ... (変更なし) ...
     function setupMotionDetection() {
         console.log('Setting up motion detection...');
         if (!sensorStartBtn) {
@@ -194,9 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. iOS 13+ の場合の処理 (requestPermissionが必須)
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-            
             sensorStartBtn.disabled = false;
             sensorStartBtn.textContent = 'センサーを有効化';
             
@@ -207,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.log('Motion permission granted.');
                             window.addEventListener('devicemotion', handleMotion);
                             motionListenerAttached = true;
-                            sensorStartBtn.style.display = 'none'; // 許可後はボタンを隠す
+                            sensorStartBtn.style.display = 'none';
                         } else {
                             console.warn('Motion permission denied.');
                             sensorStartBtn.textContent = '許可されませんでした';
@@ -217,14 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
                          console.error('Motion permission request failed:', e);
                          sensorStartBtn.textContent = 'センサーエラー';
                     });
-            }, { once: true }); // 一度だけ実行
+            }, { once: true });
 
-        // 2. Android (HTTPS接続が必要) や、requestPermission がない環境
         } else if (typeof DeviceMotionEvent !== 'undefined') {
             console.log('Attempting to attach devicemotion listener (Android/standard).');
-            // Androidでは通常、ユーザーの操作（ボタンクリックなど）は不要だが、
-            // ここではiOSと動作を合わせるため、ボタンクリックをトリガーにする
-            
             sensorStartBtn.disabled = false;
             sensorStartBtn.textContent = 'センサーを開始';
             
@@ -240,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, { once: true });
 
-        // 3. センサーがサポートされていない場合
         } else {
             console.error('Device motion not supported on this device.');
             sensorStartBtn.textContent = 'センサー非対応';
@@ -248,36 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * 加速度データ（重力除く）からマグニチュードを計算
-     */
     function handleMotion(event) {
         if (!motionListenerAttached) return;
-
-        // 重力を除いた加速度を取得
         const acc = event.acceleration; 
 
         if (acc.x === null || acc.y === null || acc.z === null) {
-            // データが利用できない場合
             console.warn('event.acceleration data is null.');
             return;
         }
 
-        // 瞬間の加速度の大きさ（マグニチュード）
         const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-
-        // スムージング (急激な変化を防ぐため)
-        // 0.1 * new + 0.9 * old
         const smoothedMagnitude = (magnitude * SMOOTHING_FACTOR_MOTION) + (lastMagnitude * (1.0 - SMOOTHING_FACTOR_MOTION));
         lastMagnitude = smoothedMagnitude;
 
-        // 計算した値（RMSと仮定）に基づいて速度を切り替える
         checkAndSwitchSpeed(smoothedMagnitude);
     }
 
-    /**
-     * RMS値（ここではマグニチュード）に基づいて対応する速度キーを返す
-     */
     function getSpeedKeyFromRMS(rms) {
         if (rms < 2) return '1.10';
         if (rms < 4) return '1.15';
@@ -287,24 +265,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return '1.35'; // 10以上
     }
 
-    /**
-     * 速度をチェックし、必要に応じてクロスフェードを実行する
-     */
     function checkAndSwitchSpeed(rmsValue) {
-        if (!masterPlayer) return; // まだ準備できていない
+        if (!masterPlayer) return; 
 
         const targetSpeedKey = getSpeedKeyFromRMS(rmsValue);
 
-        // ターゲットが現在のアクティブな速度と異なり、
-        // かつ、現在クロスフェード中でなければ、切り替えを実行
         if (targetSpeedKey !== currentActiveSpeed && !isCrossfading) {
             
             console.log(`Motion triggered crossfade to: ${targetSpeedKey} (RMS: ${rmsValue.toFixed(2)})`);
             
-            // 既存のクロスフェード関数を呼び出す
             manualCrossfade(targetSpeedKey);
             
-            // 【変更】対応するボタンのUIも更新する
+            // HTML側の data-speed が修正されたため、ここは正しく動作する
             speedSelectButtons.forEach(btn => {
                 if (btn.dataset.speed === targetSpeedKey) {
                     btn.classList.add('active');

@@ -10,7 +10,8 @@
     <style>
         body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
         
-        #waveform-1\.00 {
+        /* === ▼ 修正点 1 (セレクタを 1.10 に) === */
+        #waveform-1\.10 {
             border: 1px solid #ddd; 
             border-radius: 4px; 
             background: #f8f8f8; 
@@ -33,13 +34,14 @@
         <strong style="color: red;">※6つのwavファイルが必須です</strong>
     </p>
 
-    <div id="waveform-1.10"></div> <div id="waveform-1.15"></div>
-<div id="waveform-1.20"></div>
-<div id="waveform-1.25"></div>
-<div id="waveform-1.30"></div>
-<div id="waveform-1.35"></div>
-    <hr>
+    <div id="waveform-1.10"></div>
 
+    <div id="waveform-1.15" style="display: none;"></div>
+    <div id="waveform-1.20" style="display: none;"></div>
+    <div id="waveform-1.25" style="display: none;"></div>
+    <div id="waveform-1.30" style="display: none;"></div>
+    <div id="waveform-1.35" style="display: none;"></div>
+    <hr>
     <button id="playPauseBtn" disabled>Loading...</button>
     <button id="sensorStartBtn" style="display: block; margin: 10px 0;">
     センサーを有効化
@@ -47,13 +49,14 @@
     
     <div class="speed-controls">
         <h3>再生速度:</h3>
-        <button class="speedSelectBtn" data-speed="0.90" disabled>1.10x</button>
-        <button class="speedSelectBtn" data-speed="0.95" disabled>1.15x</button>
-        <button class="speedSelectBtn active" data-speed="1.00" disabled>1.20x</button>
-        <button class="speedSelectBtn" data-speed="1.05" disabled>1.25x</button>
-        <button class="speedSelectBtn" data-speed="1.10" disabled>1.30x</button>
-        <button class="speedSelectBtn" data-speed="1.15" disabled>1.35x</button>
-    </div>
+        
+        <button class="speedSelectBtn active" data-speed="1.10" disabled>1.10x</button>
+        <button class="speedSelectBtn" data-speed="1.15" disabled>1.15x</button>
+        <button class="speedSelectBtn" data-speed="1.20" disabled>1.20x</button>
+        <button class="speedSelectBtn" data-speed="1.25" disabled>1.25x</button>
+        <button class="speedSelectBtn" data-speed="1.30" disabled>1.30x</button>
+        <button class="speedSelectBtn" data-speed="1.35" disabled>1.35x</button>
+        </div>
 
     <script src="script.js"></script>
 
